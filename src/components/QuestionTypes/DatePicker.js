@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Radio extends React.Component {
+class DatePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,10 +10,10 @@ class Radio extends React.Component {
   render() {
     return (
       <div>
-        Radio!
+        DatePicker!
       </div>
     );
   }
 }
 
-export default Radio;
+export default DatePicker;

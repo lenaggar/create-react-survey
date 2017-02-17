@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 
-class Textbox extends React.Component {
+class ShortAnswer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,4 +27,4 @@ class Textbox extends React.Component {
   }
 }
 
-export default Textbox;
+export default ShortAnswer;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
 
-class TextArea extends React.Component {
+class ShortAnswer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -11,13 +11,13 @@ class TextArea extends React.Component {
   render() {
     return (
       <Form>
-        <FormGroup controlId="text-area-question">
+        <FormGroup controlId="textbox-question">
           <ControlLabel>Type your question</ControlLabel>
           <FormControl type="text" placeholder="Enter text"></FormControl>
         </FormGroup>
-        <FormGroup controlId="text-area-answer">
+        <FormGroup controlId="textbox-answer">
           <ControlLabel>Answer</ControlLabel>
-          <FormControl componentClass="textarea" placeholder="Answer goes here" disabled></FormControl>
+          <FormControl type="text" placeholder="Answer goes here" disabled></FormControl>
         </FormGroup>
         <Button>
           Submit
@@ -27,4 +27,4 @@ class TextArea extends React.Component {
   }
 }
 
-export default TextArea;
+export default ShortAnswer;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox, Col } from 'react-bootstrap';
+import { Form, FormGroup, ControlLabel, FormControl, HelpBlock, Checkbox } from 'react-bootstrap';
 
 import FormSubmit from './FormSubmit';
 
@@ -11,7 +11,9 @@ class DropdownList extends React.Component {
       question: '',
       optionsAllowed: true,
       options: [],
+      question1stBlur: false,
       questionValidity: null,
+      answer1stBlur: false,
       answerValidity: null,
       checkbox: true,
       popoverVisible: false,
@@ -19,52 +21,50 @@ class DropdownList extends React.Component {
     };
   }
 
+  // handleQuestionOnBlur() {
+  //   this.setState({
+  //     question1stBlur: true
+  //   });
+  //   this.forceUpdate(() => {
+  //     this.validateQuestionOnChange();
+  //   });
+  // }
+
   validateQuestionOnChange() {
-    const question = document.querySelector('#dropdown-list-question').value;
-    const len = question.length;
-    if(len < 1) {
+    const q = document.querySelector('#dropdown-list-question').value;
+    if(q.length < 1) {
       this.setState({
         question: '',
-        questionValidity: 'error',
+        questionValidity: 'error'
       });
       return;
     } else {
-      let validQuestion = question.charAt(0).toUpperCase() + question.substr(1);
-      if(validQuestion.charAt(len - 1) === '?') {
-        this.setState({
-          question: validQuestion,
-          questionValidity: 'success',
-        });
-        return;
-      } else {
-        this.setState({
-          question: validQuestion + '?',
-          questionValidity: 'success',
-        });
-        return;
-      }
+      const validQ = q.charAt(0).toUpperCase() + q.substr(1);
+      this.setState({
+        question: (validQ.charAt(q.length - 1) === '?') ? validQ : `${validQ}?`,
+        questionValidity: 'success'
+      });
     }
   }
+
+  // handleAnswerOnBlur() {
+  //   this.setState({
+  //     answer1stBlur: true
+  //   });
+  //   this.forceUpdate(() => {
+  //     this.validateAnswersOnChange();
+  //   });
+  // }
 
   validateAnswersOnChange() {
     const answers = document.querySelector('#dropdown-list-answer').value
       .split(',')
       .map(option => option.trim())
       .filter(a => a);
-    const len = answers.length;
-    if(len < 2) {
-      this.setState({
-        options: answers,
-        answerValidity: 'error',
-      });
-      return;
-    } else {
-      this.setState({
-        options: answers,
-        answerValidity: 'success',
-      });
-      return;
-    }
+    this.setState({
+      options: answers,
+      answerValidity: (answers.length < 2) ? 'error' : 'success'
+    });
   }
 
   toggleSortOptions() {
@@ -77,20 +77,20 @@ class DropdownList extends React.Component {
     if(!this.state.answerValidity)
       this.validateAnswersOnChange();
 
-    const questionValidity = this.state.questionValidity;
-    const answerValidity = this.state.answerValidity;
+    const qValidity = this.state.questionValidity;
+    const aValidity = this.state.answerValidity;
     
-    if(questionValidity === 'error' && answerValidity === 'error')
+    if(qValidity === 'error' && aValidity === 'error')
       this.setState({
         popoverMessage: 'Invalid question and options!',
         popoverVisible: true
       });
-    else if (questionValidity === 'error')
+    else if (qValidity === 'error')
       this.setState({
         popoverMessage: 'Invalid question!',
         popoverVisible: true
       });
-    else if (answerValidity === 'error')
+    else if (aValidity === 'error')
       this.setState({
         popoverMessage: 'Invalid options for this question type!',
         popoverVisible: true
@@ -103,64 +103,70 @@ class DropdownList extends React.Component {
   }
 
   submitForm() {
+    // validate form and set the Validation State
     this.setPopoverMessage();
     
-    if(this.state.popoverVisible)
+    // update the state and re-render the component
+    // and "then" check if it is valid
+    this.forceUpdate(() => {      
+      if(this.state.questionValidity !== 'success' || this.state.answerValidity !== 'success')
+        return;
+
+      // process question befor submitting
+      if(this.state.checkbox) {
+        const sortedArr = this.state.options.sort();
+        this.setState({
+          options: sortedArr
+        });
+      }
+
+      // create question
+      let qObj = {
+        questionType: this.state.questionType,
+        question: this.state.question,
+        optionsAllowed: this.state.optionsAllowed,
+        options: this.state.options,
+      };
+
+      // send qustion schema to survey component through props
+      this.props.insertQuestion(qObj);
+      this.props.closeModal();
       return;
+    });
 
-    // process question befor submitting
-    if(this.state.checkbox) {
-      const optionsArr = this.state.options;
-      optionsArr.sort();
-      this.setState({
-        options: optionsArr
-      });
-    }
-
-    // create question
-    // ...
   }
   
   render() {
     return (
-      <Form horizontal>
+      <Form>
 
         <FormGroup controlId="dropdown-list-question" validationState={this.state.questionValidity}>
-          <Col sm={2}>
-            <ControlLabel>Question:</ControlLabel>
-          </Col>
-          <Col sm={10}>
-            <FormControl type="text" placeholder="Enter text" onChange={this.validateQuestionOnChange.bind(this)}></FormControl>
-          </Col>
+          <ControlLabel>Question:</ControlLabel>
+          <FormControl type="text" placeholder="Enter text" onBlur={this.validateQuestionOnChange.bind(this)}></FormControl>
         </FormGroup>
 
         <FormGroup controlId="dropdown-list-answer" validationState={this.state.answerValidity}>
-          <Col sm={2}>
-            <ControlLabel>Options:</ControlLabel>
-          </Col>
-          <Col sm={10}>
-            <FormControl type="text" placeholder="Enter text" onChange={this.validateAnswersOnChange.bind(this)}></FormControl>
-          </Col>
-          <Col smOffset={2} sm={10}>
-            <HelpBlock>Note: entered options should be separated by <strong>commas</strong>! e.g.:(Red, Green, Yellow...)</HelpBlock>
-          </Col>
+          <ControlLabel>Options:</ControlLabel>
+          <FormControl type="text" placeholder="Enter text" onBlur={this.validateAnswersOnChange.bind(this)}></FormControl>
+          <HelpBlock>Note: entered options should be separated by <strong>commas</strong>! e.g.:(Red, Green, Yellow...)</HelpBlock>
         </FormGroup>
 
         <FormGroup controlId="dropdown-list-answer-order">
-          <Col smOffset={2} sm={10}>
-            <Checkbox checked={this.state.checkbox} onChange={this.toggleSortOptions.bind(this)}>Sort options</Checkbox>
-          </Col>
+          <Checkbox checked={this.state.checkbox} onChange={this.toggleSortOptions.bind(this)}>Sort Options</Checkbox>
         </FormGroup>
 
         <FormGroup controlId="dropdown-list-submit">
-          <Col smOffset={2} sm={10}>
-            <FormSubmit show={this.state.popoverVisible} message={this.state.popoverMessage} handleClick={this.submitForm.bind(this)}/>
-          </Col>
+          <FormSubmit show={this.state.popoverVisible} message={this.state.popoverMessage} handleClick={this.submitForm.bind(this)}/>
         </FormGroup>
 
       </Form>
     );
   }
 }
+
+DropdownList.propTypes = {
+  insertQuestion: React.PropTypes.func.isRequired,
+  closeModal: React.PropTypes.func.isRequired,
+};
 
 export default DropdownList;

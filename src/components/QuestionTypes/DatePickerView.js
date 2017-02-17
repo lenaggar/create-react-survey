@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Checkbox extends React.Component {
+class DatePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,10 +10,10 @@ class Checkbox extends React.Component {
   render() {
     return (
       <div>
-        checkbox!
+        DatePicker!
       </div>
     );
   }
 }
 
-export default Checkbox;
+export default DatePicker;

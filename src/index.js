@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import App from './components/App';
+import Survey from './components/Survey';
 
 ReactDOM.render(
-  <App />,
+  <Survey />,
   document.querySelector('#root')
 );
